@@ -20,6 +20,7 @@ user_audio_map = {
     '337759969497579521': 'audios/Bankai.mp3',  # Nanda
     '292424522576166913': 'audios/mais-polvora.mp3',  # Bred
     '275661911058677760': 'audios/taylor.mp3',  # Marcel
+    '356605986854928387': 'audios/pedronepiece.mp3',  # Pedrinho
 }
 
 # Set up the bot
