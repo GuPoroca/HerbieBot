@@ -21,13 +21,14 @@ user_audio_map = {
     '292424522576166913': 'audios/mais-polvora.mp3',  # Bred
     '275661911058677760': 'audios/taylor.mp3',  # Marcel
     '356605986854928387': 'audios/pedronepiece.mp3',  # Pedrinho
+    '211269261346340864': 'audios/dinhomusic.mp3',  # Dinho
 }
 
 # Set up the bot
 intents = discord.Intents.default()
 intents.voice_states = True
 intents.members = True
-bot = commands.Bot(command_prefix='!', intents=intents)
+bot = commands.Bot(command_prefix='h!', intents=intents)
 
 @bot.event
 async def on_ready():
