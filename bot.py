@@ -7,9 +7,7 @@ from dotenv import load_dotenv
 from discord import FFmpegPCMAudio
 
 # Load environment variables
-
 load_dotenv()
-
 TOKEN = os.getenv('DISCORD_TOKEN')
 
 # Track user-specific MP3s
@@ -28,35 +26,69 @@ user_audio_map = {
 intents = discord.Intents.default()
 intents.voice_states = True
 intents.members = True
+intents.messages = True
+intents.message_content = True
 bot = commands.Bot(command_prefix='h!', intents=intents)
+
+# ID of the specific text channel where commands are allowed
+COMMAND_CHANNEL_ID = 1329533472112377958  # Replace with your text channel ID
 
 @bot.event
 async def on_ready():
     print(f'Logged in as {bot.user}!')
 
+@bot.command(name='join')
+async def join(ctx):
+    if ctx.channel.id != COMMAND_CHANNEL_ID:
+        await ctx.send("I can only accept commands in the designated channel.")
+        return
+
+    if ctx.author.voice and ctx.author.voice.channel:
+        voice_channel = ctx.author.voice.channel
+        vc = get(bot.voice_clients, guild=ctx.guild)
+
+        if not vc or not vc.is_connected():
+            await voice_channel.connect()
+            await ctx.send(f"Joined {voice_channel}!")
+        else:
+            await ctx.send("I'm already in a voice channel!")
+    else:
+        await ctx.send("You need to be in a voice channel to use this command.")
+
+@bot.command(name='leave')
+async def leave(ctx):
+    if ctx.channel.id != COMMAND_CHANNEL_ID:
+        await ctx.send("I can only accept commands in the designated channel.")
+        return
+
+    vc = get(bot.voice_clients, guild=ctx.guild)
+
+    if vc and vc.is_connected():
+        await vc.disconnect()
+        await ctx.send("I have left the voice channel.")
+    else:
+        await ctx.send("I'm not connected to any voice channel.")
+
 @bot.event
 async def on_voice_state_update(member, before, after):
-    # Check if the user joined a voice channel
     if before.channel is None and after.channel is not None:
         user_id = str(member.id)
 
-        # Check if the user has an assigned MP3
         if user_id in user_audio_map:
             audio_path = user_audio_map[user_id]
             voice_channel = after.channel
+            vc = get(bot.voice_clients, guild=member.guild)
 
-            # Connect to the voice channel
-            vc = await voice_channel.connect()
+            # Join the channel if not already connected
+            if not vc or not vc.is_connected():
+                vc = await voice_channel.connect()
 
-            # Play the MP3 file
+            # Play the audio
             if os.path.exists(audio_path):
-                vc.play(FFmpegPCMAudio(audio_path), after=lambda e: print(f'Finished playing: {e}'))
-
-                # Wait for the audio to finish, then disconnect
-                while vc.is_playing():
-                    await discord.utils.sleep_until(datetime.now() + timedelta(seconds=1))
-
-                await vc.disconnect()
+                if not vc.is_playing():
+                    vc.play(FFmpegPCMAudio(audio_path), after=lambda e: print(f'Finished playing: {e}'))
+                else:
+                    print(f"Already playing audio in {voice_channel}.")
             else:
                 print(f"Audio file not found: {audio_path}")
 
