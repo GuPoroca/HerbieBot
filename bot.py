@@ -71,26 +71,35 @@ async def leave(ctx):
 
 @bot.event
 async def on_voice_state_update(member, before, after):
-    if before.channel is None and after.channel is not None:
+    if before.channel is None and after.channel is not None:  # User joined a voice channel
         user_id = str(member.id)
 
         if user_id in user_audio_map:
             audio_path = user_audio_map[user_id]
-            voice_channel = after.channel
             vc = get(bot.voice_clients, guild=member.guild)
 
-            # Join the channel if not already connected
-            if not vc or not vc.is_connected():
-                vc = await voice_channel.connect()
-
-            # Play the audio
-            if os.path.exists(audio_path):
-                if not vc.is_playing():
-                    vc.play(FFmpegPCMAudio(audio_path), after=lambda e: print(f'Finished playing: {e}'))
-                else:
-                    print(f"Already playing audio in {voice_channel}.")
+            # Check if the bot is connected to a voice channel
+            if vc:
+                if vc.channel == after.channel:
+                    # Bot is already in the same channel
+                    await play_intro(vc, audio_path)
             else:
-                print(f"Audio file not found: {audio_path}")
+                # Bot is not connected, join the user's channel
+                voice_channel = after.channel
+                vc = await voice_channel.connect()
+                await play_intro(vc, audio_path)
+
+async def play_intro(vc, audio_path):
+    """
+    Plays the given audio file in the provided voice client.
+    """
+    if os.path.exists(audio_path):
+        if not vc.is_playing():
+            vc.play(FFmpegPCMAudio(audio_path), after=lambda e: print(f'Finished playing: {e}'))
+        else:
+            print("Audio is already playing, skipping intro.")
+    else:
+        print(f"Audio file not found: {audio_path}")
 
 # Run the bot
 bot.run(TOKEN)
