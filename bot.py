@@ -13,13 +13,14 @@ TOKEN = os.getenv('DISCORD_TOKEN')
 # Track user-specific MP3s
 user_audio_map = {
     '170604831059345408': 'audios/Escalon.mp3',  # Poroca
-    '242353862030131201': 'audios/all-of-the-lights.mp3',  # Gabi
+    '242353862030131201': 'audios/gabiaudio.mp3',  # Gabi
     '247115447865049088': 'audios/Betolaintro.mp3',  # Betola
     '337759969497579521': 'audios/Bankai.mp3',  # Nanda
     '292424522576166913': 'audios/mais-polvora.mp3',  # Bred
     '275661911058677760': 'audios/taylor.mp3',  # Marcel
     '356605986854928387': 'audios/pedronepiece.mp3',  # Pedrinho
     '211269261346340864': 'audios/dinhomusic.mp3',  # Dinho
+    '309201601736867842': 'audios/jebaudio.mp3',  # Jeb
 }
 
 # Set up the bot
